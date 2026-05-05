@@ -204,7 +204,7 @@ services:
       - VITE_API_URL=http://localhost:3001
 ```
 
-Le daemon lit/écrit dans `./data/devtrack.db` (chemin Windows), qui est le même fichier monté dans Docker via le volume.
+Le daemon lit/écrit dans `./data/devtrack.db` (chemin Windows absolu, ex: `C:\Users\flori\Documents\ia test\data\devtrack.db`), configuré dans `daemon/config.json`. Docker monte ce même répertoire `./data` comme volume — les deux processus accèdent ainsi au même fichier SQLite. L'accès concurrent est géré par WAL mode SQLite (`PRAGMA journal_mode=WAL`).
 
 ---
 
@@ -220,13 +220,26 @@ Le daemon lit/écrit dans `./data/devtrack.db` (chemin Windows), qui est le mêm
 
 ---
 
+## Prérequis
+
+| Composant | Prérequis |
+|---|---|
+| Daemon | Node.js ≥ 18, `node-gyp` + Build Tools Windows (pour compiler `ffi-napi`) |
+| Docker stack | Docker Desktop for Windows avec WSL2 |
+| Daemon autostart | `pm2` (optionnel) ou Task Scheduler Windows |
+
+Le daemon nécessite les **Visual C++ Build Tools** (`npm install --global windows-build-tools` ou via Visual Studio Installer) pour compiler les bindings natifs Win32.
+
+---
+
 ## Plan de déploiement initial
 
-1. `npm install` dans `/daemon` + lancer avec `node src/tracker.js`
-2. `docker compose up -d` à la racine
-3. Ouvrir `http://localhost:3000`
-4. Configurer le projet actif dans le dashboard
-5. Optionnel : ajouter le daemon au démarrage Windows via Task Scheduler
+1. Installer les build tools Windows si absents
+2. `npm install` dans `/daemon` + lancer avec `node src/tracker.js`
+3. `docker compose up -d` à la racine
+4. Ouvrir `http://localhost:3000`
+5. Configurer le projet actif dans le dashboard
+6. Optionnel : enregistrer le daemon dans Task Scheduler pour démarrage automatique
 
 ---
 
