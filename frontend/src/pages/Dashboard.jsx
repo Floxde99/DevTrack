@@ -19,7 +19,7 @@ export default function Dashboard({ activeProject, onActiveProjectChanged }) {
 
   const loadData = useCallback(async (d) => {
     const [s, a] = await Promise.all([
-      api.get('/api/stats/today').catch(() => null),
+      api.get(`/api/stats/today?date=${encodeURIComponent(d)}`).catch(() => null),
       api.get(`/api/activities?date=${d}`).catch(() => []),
     ]);
     setStats(s);

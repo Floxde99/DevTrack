@@ -44,7 +44,8 @@ test('health + stats + activities endpoints return JSON shapes', async () => {
     assert.ok(typeof statsToday.date === 'string');
     assert.ok(Array.isArray(statsToday.by_category));
     assert.ok(Array.isArray(statsToday.by_project));
-    assert.ok(statsToday.current === null || typeof statsToday.current === 'object');
+    assert.ok(typeof statsToday.total_active_seconds === 'number');
+    assert.ok(statsToday.total_active_seconds >= 0 && statsToday.total_active_seconds <= 86400);
 
     const today = new Date().toISOString().slice(0, 10);
     const activities = await (await fetch(`${base}/api/activities?date=${today}`)).json();
