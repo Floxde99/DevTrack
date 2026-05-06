@@ -6,7 +6,7 @@
   "api_url": "http://localhost:3001",
 
   "browser_context_port": 7337,
-  "browser_capture_full_url": false,
+  "browser_capture_full_url": true,
 
   "privacy": {
     "mode": "off",
@@ -14,3 +14,4 @@
     "deny": { "app_name": [], "exe_path": [] }
   }
 }
+

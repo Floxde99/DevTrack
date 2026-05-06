@@ -1,4 +1,4 @@
-import { CATEGORY_COLORS, formatDuration } from '../theme.js';
+import { appDisplayName, CATEGORY_COLORS, formatDuration } from '../theme.js';
 
 function durationSeconds(a) {
   const end = a.ended_at ? new Date(a.ended_at) : new Date();
@@ -31,7 +31,7 @@ export default function ActivityLog({ activities }) {
             className="w-2 h-2 rounded-sm flex-shrink-0"
             style={{ background: CATEGORY_COLORS[act.category] }}
           />
-          <span className="text-on-surface flex-none w-28 truncate">{act.app_name}</span>
+          <span className="text-on-surface flex-none w-28 truncate">{appDisplayName(act)}</span>
           <span className="text-on-surface-variant flex-1 truncate">
             {act.window_title}
             {looksLikePath(act.exe_path) && typeof act.pid === 'number' && Number.isFinite(act.pid) ? (

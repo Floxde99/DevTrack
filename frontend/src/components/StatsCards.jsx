@@ -1,4 +1,4 @@
-import { formatDuration } from '../theme.js';
+import { appDisplayName, formatDuration } from '../theme.js';
 
 function Card({ label, value, sub, pct, color }) {
   return (
@@ -74,7 +74,7 @@ export default function StatsCards({ stats }) {
       />
       <Card
         label="Now"
-        value={stats?.current?.app_name ?? '—'}
+        value={appDisplayName(stats?.current)}
         sub={stats?.current?.category ?? ''}
         color="#ffe1a7"
       />

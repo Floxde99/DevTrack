@@ -7,6 +7,8 @@ function defaultWsUrl() {
 
 export function useDevTrackWs(onMessage) {
   const wsRef = useRef(null);
+  const handlerRef = useRef(onMessage);
+  handlerRef.current = onMessage;
   const [connected, setConnected] = useState(false);
 
   useEffect(() => {
@@ -26,7 +28,7 @@ export function useDevTrackWs(onMessage) {
       ws.onerror = () => ws.close();
       ws.onmessage = (e) => {
         try {
-          onMessage(JSON.parse(e.data));
+          handlerRef.current(JSON.parse(e.data));
         } catch {
           // ignore
         }
@@ -38,7 +40,6 @@ export function useDevTrackWs(onMessage) {
       stopped = true;
       wsRef.current?.close();
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return connected;

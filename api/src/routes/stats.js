@@ -137,7 +137,7 @@ function createStatsRouter(db) {
         SELECT app_name, window_title, browser_domain, browser_url, category, started_at
         FROM activities
         WHERE ended_at IS NULL
-        ORDER BY id DESC
+        ORDER BY started_at DESC, id DESC
         LIMIT 1
       `
       )

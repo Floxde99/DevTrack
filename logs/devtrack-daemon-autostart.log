@@ -1,0 +1,105 @@
+﻿**********************
+Début de la transcription Windows PowerShell
+Heure de début : 20260506171129
+Nom d'utilisateur : FLO\flori
+Utilisateur runAs :  FLO\flori
+Nom de la configuration : 
+Ordinateur : FLO (Microsoft Windows NT 10.0.26200.0)
+Application hôte : C:\WINDOWS\System32\WindowsPowerShell\v1.0\powershell.exe -ExecutionPolicy Bypass -File .\scripts\autostart\run-daemon.ps1
+ID de processus : 20924
+PSVersion: 5.1.26100.8328
+PSEdition: Desktop
+PSCompatibleVersions: 1.0, 2.0, 3.0, 4.0, 5.0, 5.1.26100.8328
+BuildVersion: 10.0.26100.8328
+CLRVersion: 4.0.30319.42000
+WSManStackVersion: 3.0
+PSRemotingProtocolVersion: 2.3
+SerializationVersion: 1.1.0.1
+**********************
+[daemon] starting (npm start)
+
+PS>Erreur de terminaison () : « Le pipeline a été arrêté. »
+>> Erreur de terminaison () : « Le pipeline a été arrêté. »
+>> Erreur de terminaison () : « Le pipeline a été arrêté. »
+**********************
+Fin de la transcription Windows PowerShell
+Heure de fin : 20260506172118
+**********************
+**********************
+Début de la transcription Windows PowerShell
+Heure de début : 20260506172130
+Nom d'utilisateur : FLO\flori
+Utilisateur runAs :  FLO\flori
+Nom de la configuration : 
+Ordinateur : FLO (Microsoft Windows NT 10.0.26200.0)
+Application hôte : C:\WINDOWS\System32\WindowsPowerShell\v1.0\powershell.exe -ExecutionPolicy Bypass -File .\scripts\autostart\run-daemon.ps1
+ID de processus : 30976
+PSVersion: 5.1.26100.8328
+PSEdition: Desktop
+PSCompatibleVersions: 1.0, 2.0, 3.0, 4.0, 5.0, 5.1.26100.8328
+BuildVersion: 10.0.26100.8328
+CLRVersion: 4.0.30319.42000
+WSManStackVersion: 3.0
+PSRemotingProtocolVersion: 2.3
+SerializationVersion: 1.1.0.1
+**********************
+[daemon] starting (npm start)
+#25 exporting manifest list sha256:df08e22e8f23819a3d9efb1193ea216ca631ff71df466f974eac7844edcbf429 0.0s done
+#25 naming to docker.io/library/iatest-frontend:latest done
+#25 unpacking to docker.io/library/iatest-frontend:latest
+#25 unpacking to docker.io/library/iatest-frontend:latest 0.2s done
+#25 DONE 0.6s
+
+#26 [frontend] resolving provenance for metadata file
+#26 DONE 0.0s
+[+] up 4/4
+ ✔ Image iatest-api            Built                                                         12.1s
+ ✔ Image iatest-frontend       Built                                                         12.1s
+ ✔ Container iatest-api-1      Healthy                                                       9.9s
+ ✔ Container iatest-frontend-1 Started                                                       8.2s
+PS C:\Users\flori\Documents\ia test> powershell -ExecutionPolicy Bypass -File .\scripts\autostart\run-daemon.ps1
+[daemon] starting (npm start)
+
+> devtrack-daemon@1.0.0 start
+> node src/tracker.js
+
+[devtrack daemon] starting...
+[devtrack daemon] browser context listening on http://127.0.0.1:7337/browser/context
+[client] POST failed: The operation was aborted due to timeout — queued for retry
+[client] POST failed: The operation was aborted due to timeout — queued for retry
+[client] POST failed: The operation was aborted due to timeout — queued for retry
+[client] POST failed: The operation was aborted due to timeout — queued for retry
+PS C:\Users\flori\Documents\ia test> powershell -ExecutionPolicy Bypass -File .\scripts\autostart\run-daemon.ps1
+[daemon] starting (npm start)
+
+> devtrack-daemon@1.0.0 start
+> node src/tracker.js
+
+[devtrack daemon] starting...
+[devtrack daemon] browser context listening on http://127.0.0.1:7337/browser/context
+PS>Erreur de terminaison () : « Le pipeline a été arrêté. »
+>> Erreur de terminaison () : « Le pipeline a été arrêté. »
+>> Erreur de terminaison () : « Le pipeline a été arrêté. »
+**********************
+Fin de la transcription Windows PowerShell
+Heure de fin : 20260506172837
+**********************
+**********************
+Début de la transcription Windows PowerShell
+Heure de début : 20260506172909
+Nom d'utilisateur : FLO\flori
+Utilisateur runAs :  FLO\flori
+Nom de la configuration : 
+Ordinateur : FLO (Microsoft Windows NT 10.0.26200.0)
+Application hôte : C:\WINDOWS\System32\WindowsPowerShell\v1.0\powershell.exe -ExecutionPolicy Bypass -File .\scripts\autostart\run-daemon.ps1
+ID de processus : 24040
+PSVersion: 5.1.26100.8328
+PSEdition: Desktop
+PSCompatibleVersions: 1.0, 2.0, 3.0, 4.0, 5.0, 5.1.26100.8328
+BuildVersion: 10.0.26100.8328
+CLRVersion: 4.0.30319.42000
+WSManStackVersion: 3.0
+PSRemotingProtocolVersion: 2.3
+SerializationVersion: 1.1.0.1
+**********************
+[daemon] starting (npm start)

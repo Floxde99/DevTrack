@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { formatDuration } from '../theme.js';
+import { appDisplayName, formatDuration } from '../theme.js';
 
 export default function TopBar({ current, activeProject, date, onPrev, onNext, canNext }) {
   const [elapsed, setElapsed] = useState(0);
@@ -18,7 +18,7 @@ export default function TopBar({ current, activeProject, date, onPrev, onNext, c
     <div className="bg-surface border-b border-outline-variant px-6 py-3 flex items-center justify-between flex-shrink-0">
       <div className="flex items-center gap-3 bg-surface-container border border-outline-variant rounded px-4 py-2 min-w-0">
         <span className="w-2 h-2 rounded-full bg-live animate-pulse flex-shrink-0" />
-        <span className="text-on-surface text-xs truncate">{current?.app_name ?? '—'}</span>
+        <span className="text-on-surface text-xs truncate">{appDisplayName(current)}</span>
         <span className="text-on-surface-variant text-xs truncate">
           {current?.category ? `— ${current.category}` : '—'}
         </span>

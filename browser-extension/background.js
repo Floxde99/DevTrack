@@ -1,7 +1,7 @@
 const DEFAULTS = {
   daemonHost: '127.0.0.1',
   daemonPort: 7337,
-  captureFullUrl: false,
+  captureFullUrl: true,
   postIntervalMs: 5000
 };
 
