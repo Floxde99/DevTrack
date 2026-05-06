@@ -1,0 +1,7 @@
+{
+  "poll_interval_ms": 2000,
+  "write_interval_ms": 5000,
+  "idle_threshold_s": 120,
+  "db_path": "../data/devtrack.db",
+  "api_url": "http://localhost:3001"
+}
