@@ -24,6 +24,7 @@ test('POST /api/events returns 201 + id', async () => {
   const { port } = server.address();
 
   try {
+    const started_at = new Date().toISOString();
     const res = await fetch(`http://localhost:${port}/api/events`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -32,13 +33,31 @@ test('POST /api/events returns 201 + id', async () => {
         app_name: 'cursor.exe',
         window_title: 'test',
         category: 'coding',
-        started_at: new Date().toISOString(),
+        started_at,
       }),
     });
 
     assert.equal(res.status, 201);
     const body = await res.json();
     assert.ok(body.id);
+
+    const ended_at = new Date(Date.now() + 5_000).toISOString();
+    const endRes = await fetch(`http://localhost:${port}/api/events`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        type: 'activity_end',
+        started_at,
+        ended_at,
+      }),
+    });
+    assert.equal(endRes.status, 200);
+
+    const row = db
+      .prepare('SELECT started_at, ended_at FROM activities WHERE id = ?')
+      .get(body.id);
+    assert.equal(row.started_at, started_at);
+    assert.equal(row.ended_at, ended_at);
   } finally {
     server.close();
     db.close();
