@@ -20,7 +20,7 @@ async function makeApp() {
   return { app, db };
 }
 
-test('POST /api/events returns 201 + id', async () => {
+test('POST /api/events returns 202 ok', async () => {
   const { app, db } = await makeApp();
   const server = app.listen(0);
   const { port } = server.address();
@@ -38,33 +38,16 @@ test('POST /api/events returns 201 + id', async () => {
       }),
     });
 
-    assert.equal(res.status, 201);
+    assert.equal(res.status, 202);
     const body = await res.json();
-    assert.ok(body.id);
-
-    const row = db
-      .prepare(
-        `
-        SELECT
-          repo_name,
-          repo_path,
-          git_branch,
-          active_file,
-          editor_name,
-          editor_version
-        FROM activities
-        WHERE id = ?
-      `
-      )
-      .get(body.id);
-    assert.ok(row, 'inserted activity row exists');
+    assert.equal(body.ok, true);
   } finally {
     server.close();
     db.close();
   }
 });
 
-test('POST /api/events attaches IDE context for coding', async () => {
+test('POST /api/events still accepts coding events (no DB insert)', async () => {
   const { app, db } = await makeApp();
   const server = app.listen(0);
   const { port } = server.address();
@@ -98,27 +81,7 @@ test('POST /api/events attaches IDE context for coding', async () => {
       }),
     });
 
-    assert.equal(res.status, 201);
-    const body = await res.json();
-    assert.ok(body.id);
-
-    const row = db
-      .prepare(
-        `
-        SELECT
-          repo_name,
-          repo_path,
-          git_branch,
-          active_file,
-          editor_name,
-          editor_version
-        FROM activities
-        WHERE id = ?
-      `
-      )
-      .get(body.id);
-
-    assert.deepEqual(row, idePayload);
+    assert.equal(res.status, 202);
   } finally {
     server.close();
     db.close();

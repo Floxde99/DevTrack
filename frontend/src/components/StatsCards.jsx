@@ -22,11 +22,30 @@ function Card({ label, value, sub, pct, color }) {
   );
 }
 
+function daySubLabel(statsDate) {
+  const d = typeof statsDate === 'string' ? statsDate : '';
+  const today = new Date().toISOString().slice(0, 10);
+  if (d && d !== today) {
+    try {
+      return new Date(`${d}T12:00:00.000Z`).toLocaleDateString(undefined, {
+        weekday: 'short',
+        month: 'short',
+        day: 'numeric',
+      });
+    } catch {
+      return d;
+    }
+  }
+  return 'Today';
+}
+
 export default function StatsCards({ stats }) {
   const byCategory = stats?.by_category ?? [];
-  const totalSec = byCategory
+  const totalFromRows = byCategory
     .filter((r) => r.category !== 'idle')
-    .reduce((a, r) => a + r.seconds, 0);
+    .reduce((a, r) => a + (Number(r.seconds) || 0), 0);
+  const totalSec =
+    typeof stats?.total_active_seconds === 'number' ? stats.total_active_seconds : totalFromRows;
   const codingSec = byCategory.find((r) => r.category === 'coding')?.seconds ?? 0;
   const idleSec = byCategory.find((r) => r.category === 'idle')?.seconds ?? 0;
 
@@ -35,7 +54,7 @@ export default function StatsCards({ stats }) {
       <Card
         label="Active time"
         value={formatDuration(totalSec)}
-        sub="Today"
+        sub={daySubLabel(stats?.date)}
         color="#fbbf24"
         pct={(totalSec / 28800) * 100}
       />
