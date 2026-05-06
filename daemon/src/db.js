@@ -1,4 +1,7 @@
-const Database = require('better-sqlite3');
+function loadBetterSqlite3() {
+  // eslint-disable-next-line global-require
+  return require('better-sqlite3');
+}
 
 const SCHEMA = `
   PRAGMA journal_mode=WAL;
@@ -23,6 +26,7 @@ const SCHEMA = `
 
 class DaemonDb {
   constructor(dbPath) {
+    const Database = loadBetterSqlite3();
     this._db = new Database(dbPath);
     this._db.exec(SCHEMA);
 
