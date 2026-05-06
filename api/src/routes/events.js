@@ -10,8 +10,13 @@ function createEventsRouter(db, broadcast) {
     const type = body.type ?? 'activity_start';
     const { app_name, window_title, category, started_at } = body;
 
-    // Minimal validation so we don't broadcast garbage.
-    if (!app_name || !category || !started_at) return res.status(400).json({ error: 'Missing fields' });
+    if (type === 'activity_end') {
+      if (!app_name || !category || !started_at || !body.ended_at) {
+        return res.status(400).json({ error: 'Missing fields' });
+      }
+    } else if (!app_name || !category || !started_at) {
+      return res.status(400).json({ error: 'Missing fields' });
+    }
 
     if (typeof broadcast === 'function') {
       const payload = {
@@ -29,8 +34,8 @@ function createEventsRouter(db, broadcast) {
         browser_url: body.browser_url ?? null,
       };
       broadcast(payload);
-      // Backwards-compat for the dashboard.
-      broadcast({ type: 'activity_changed', ...payload });
+      // Dashboard listens for `activity_changed`. Spread payload first so its `type` does not overwrite.
+      broadcast({ ...payload, type: 'activity_changed' });
     }
 
     return res.status(202).json({ ok: true });

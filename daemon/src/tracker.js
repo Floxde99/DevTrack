@@ -51,14 +51,26 @@ function contextForDb(ctx, privacyCtx) {
   };
 }
 
+function splitActivityKey(key) {
+  if (!key || typeof key !== 'string') return { app_name: '', category: '' };
+  const i = key.indexOf('|');
+  if (i <= 0) return { app_name: key, category: '' };
+  return { app_name: key.slice(0, i), category: key.slice(i + 1) };
+}
+
 function closeCurrentActivity() {
   if (currentActivityId === null) return;
   const ended_at = new Date().toISOString();
   db.closeActivity(currentActivityId, ended_at);
 
-  // Best-effort close on API side as well (may be offline).
+  const { app_name, category } = splitActivityKey(currentKey);
+
+  // API validates app_name + category; without them the POST fails and nothing is broadcast.
   client.postEvent({
     type: 'activity_end',
+    app_name,
+    category,
+    window_title: '',
     started_at: currentStartedAt,
     ended_at,
   });
@@ -93,6 +105,8 @@ function startActivity(info, category) {
     pid: info.pid ?? null,
     exe_path: info.exe_path ?? '',
     activity_level: info.activity_level ?? null,
+    browser_domain: ctx?.browser_domain ?? null,
+    browser_url: ctx?.browser_url ?? null,
     category,
     started_at,
   });
@@ -135,7 +149,18 @@ function tick() {
   };
 
   const rules = getRules();
-  const category = isIdle ? 'idle' : categorize(info.app_name, rules, { window_title: info.window_title });
+  const browserCtx = isBrowserApp(info.app_name)
+    ? {
+        browser_domain: lastBrowserContext?.domain ?? null,
+        browser_url: config.browser_capture_full_url ? lastBrowserContext?.url ?? null : null,
+      }
+    : {};
+  const category = isIdle
+    ? 'idle'
+    : categorize(info.app_name, rules, {
+        window_title: info.window_title,
+        ...browserCtx,
+      });
   const key = `${info.app_name}|${category}`;
 
   if (key !== currentKey) {

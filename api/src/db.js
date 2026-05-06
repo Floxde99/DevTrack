@@ -60,10 +60,16 @@ const DEFAULT_RULES = [
   { app_pattern: 'cursor.exe', category: 'coding', priority: 10 },
   { app_pattern: 'code.exe', category: 'coding', priority: 10 },
   { app_pattern: 'devenv.exe', category: 'coding', priority: 10 },
+  { app_pattern: 'rider64.exe', category: 'coding', priority: 10 },
+  { app_pattern: 'pycharm64.exe', category: 'coding', priority: 10 },
+  { app_pattern: 'goland64.exe', category: 'coding', priority: 10 },
+  { app_pattern: 'clion64.exe', category: 'coding', priority: 10 },
+  { app_pattern: 'androidstudio64.exe', category: 'coding', priority: 10 },
   { app_pattern: 'webstorm64.exe', category: 'coding', priority: 10 },
   { app_pattern: 'idea64.exe', category: 'coding', priority: 10 },
   { app_pattern: 'vim.exe', category: 'coding', priority: 10 },
   { app_pattern: 'nvim.exe', category: 'coding', priority: 10 },
+  { app_pattern: 'notepad++.exe', category: 'coding', priority: 9 },
 
   { app_pattern: 'chrome.exe', category: 'web', priority: 8 },
   { app_pattern: 'firefox.exe', category: 'web', priority: 8 },
@@ -74,19 +80,29 @@ const DEFAULT_RULES = [
   { app_pattern: 'discord.exe', category: 'communication', priority: 9 },
   { app_pattern: 'slack.exe', category: 'communication', priority: 9 },
   { app_pattern: 'outlook.exe', category: 'communication', priority: 9 },
+  { app_pattern: 'olk.exe', category: 'communication', priority: 9 },
+  { app_pattern: 'hxoutlook.exe', category: 'communication', priority: 9 },
   { app_pattern: 'thunderbird.exe', category: 'communication', priority: 9 },
   { app_pattern: 'teams.exe', category: 'communication', priority: 9 },
   { app_pattern: 'msteams.exe', category: 'communication', priority: 9 },
+  { app_pattern: 'zoom.exe', category: 'communication', priority: 9 },
+  { app_pattern: 'telegram.exe', category: 'communication', priority: 8 },
+  { app_pattern: 'whatsapp.exe', category: 'communication', priority: 8 },
 
   { app_pattern: 'WindowsTerminal.exe', category: 'terminal', priority: 7 },
   { app_pattern: 'powershell.exe', category: 'terminal', priority: 7 },
+  { app_pattern: 'pwsh.exe', category: 'terminal', priority: 7 },
+  { app_pattern: 'ConEmu64.exe', category: 'terminal', priority: 7 },
   { app_pattern: 'cmd.exe', category: 'terminal', priority: 7 },
   { app_pattern: 'wt.exe', category: 'terminal', priority: 7 },
   { app_pattern: 'alacritty.exe', category: 'terminal', priority: 7 },
+  { app_pattern: 'wezterm-gui.exe', category: 'terminal', priority: 7 },
 
   { app_pattern: 'figma.exe', category: 'design', priority: 6 },
   { app_pattern: 'photoshop.exe', category: 'design', priority: 6 },
   { app_pattern: 'illustrator.exe', category: 'design', priority: 6 },
+  { app_pattern: 'xd.exe', category: 'design', priority: 6 },
+  { app_pattern: 'sketch.exe', category: 'design', priority: 6 },
 ];
 
 function seedDefaultRules(db) {
@@ -102,11 +118,27 @@ function seedDefaultRules(db) {
   tx(DEFAULT_RULES);
 }
 
+function mergeRecommendedRules(db) {
+  const exists = db.prepare(
+    'SELECT 1 FROM category_rules WHERE lower(app_pattern) = lower(?) AND category = ? LIMIT 1'
+  );
+  const insert = db.prepare('INSERT INTO category_rules (app_pattern, category, priority) VALUES (?, ?, ?)');
+  const tx = db.transaction((rules) => {
+    for (const r of rules) {
+      if (!exists.get(r.app_pattern, r.category)) {
+        insert.run(r.app_pattern, r.category, r.priority);
+      }
+    }
+  });
+  tx(DEFAULT_RULES);
+}
+
 function createDb(dbPath) {
   const db = new Database(dbPath);
   db.exec(SCHEMA_SQL);
   migrateDb(db);
   seedDefaultRules(db);
+  mergeRecommendedRules(db);
   return db;
 }
 

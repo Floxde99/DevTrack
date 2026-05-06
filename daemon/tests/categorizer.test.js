@@ -30,6 +30,43 @@ test('categorize: Teams meeting window -> meeting', () => {
   assert.equal(categorize('teams.exe', DEFAULT_RULES, { window_title: 'Daily Standup Call' }), 'meeting');
 });
 
+test('categorize: Outlook-like window is communication', () => {
+  assert.equal(categorize('applicationframehost.exe', DEFAULT_RULES, { window_title: 'Inbox - Outlook' }), 'communication');
+});
+
+test('categorize: Chrome GitHub URL is coding', () => {
+  assert.equal(
+    categorize('chrome.exe', DEFAULT_RULES, {
+      window_title: 'Issues · Floxde99/DevTrack',
+      browser_domain: 'github.com',
+      browser_url: 'https://github.com/Floxde99/DevTrack/issues',
+    }),
+    'coding'
+  );
+});
+
+test('categorize: Chrome Gmail URL is communication', () => {
+  assert.equal(
+    categorize('chrome.exe', DEFAULT_RULES, {
+      window_title: 'Inbox (2) - flori@gmail.com - Gmail',
+      browser_domain: 'mail.google.com',
+      browser_url: 'https://mail.google.com/mail/u/0/#inbox',
+    }),
+    'communication'
+  );
+});
+
+test('categorize: Chrome Meet URL is meeting', () => {
+  assert.equal(
+    categorize('chrome.exe', DEFAULT_RULES, {
+      window_title: 'Standup - Google Meet',
+      browser_domain: 'meet.google.com',
+      browser_url: 'https://meet.google.com/abc-defg-hij',
+    }),
+    'meeting'
+  );
+});
+
 test('loadRules: returns an array', () => {
   const rules = loadRules([]);
   assert.ok(Array.isArray(rules));
