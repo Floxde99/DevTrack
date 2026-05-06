@@ -9,6 +9,14 @@ function timeStr(iso) {
   return new Date(iso).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
 }
 
+function looksLikePath(p) {
+  if (typeof p !== 'string' || p.length < 3) return false;
+  if (/^\[redacted\]$/i.test(p)) return false;
+  // If it's a SHA-256 hash (privacy hash mode), don't show it in UI.
+  if (/^[a-f0-9]{32,}$/i.test(p)) return false;
+  return p.includes(':\\') || p.includes(':/') || p.includes('/');
+}
+
 export default function ActivityLog({ activities }) {
   const list = (activities ?? []).slice(0, 30);
 
@@ -24,7 +32,12 @@ export default function ActivityLog({ activities }) {
             style={{ background: CATEGORY_COLORS[act.category] }}
           />
           <span className="text-on-surface flex-none w-28 truncate">{act.app_name}</span>
-          <span className="text-on-surface-variant flex-1 truncate">{act.window_title}</span>
+          <span className="text-on-surface-variant flex-1 truncate">
+            {act.window_title}
+            {looksLikePath(act.exe_path) && typeof act.pid === 'number' && Number.isFinite(act.pid) ? (
+              <span className="text-on-surface-variant/60">{`  (pid ${act.pid})`}</span>
+            ) : null}
+          </span>
           <span className="text-on-surface-variant/80 flex-none tabular-nums">
             {formatDuration(durationSeconds(act))}
           </span>

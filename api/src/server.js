@@ -9,6 +9,7 @@ const { createActivitiesRouter } = require('./routes/activities.js');
 const { createStatsRouter } = require('./routes/stats.js');
 const { createProjectsRouter } = require('./routes/projects.js');
 const { createRulesRouter } = require('./routes/rules.js');
+const { createIdeContextRouter } = require('./routes/ideContext.js');
 
 const PORT = Number(process.env.PORT ?? 3001);
 const DB_PATH = process.env.DB_PATH ?? './data/devtrack.db';
@@ -24,6 +25,7 @@ app.use(express.json());
 
 app.get('/health', (_req, res) => res.json({ ok: true }));
 app.use('/api/events', createEventsRouter(db, broadcast));
+app.use('/api/ide-context', createIdeContextRouter(db));
 app.use('/api/activities', createActivitiesRouter(db));
 app.use('/api/stats', createStatsRouter(db));
 app.use('/api/projects', createProjectsRouter(db));

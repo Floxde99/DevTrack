@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { api } from '../api/http.js';
 
-export default function Projects() {
+export default function Projects({ onActiveProjectChanged }) {
   const [projects, setProjects] = useState([]);
   const [name, setName] = useState('');
   const [color, setColor] = useState('#fbbf24');
@@ -22,6 +22,7 @@ export default function Projects() {
   async function activate(id) {
     await api.patch(`/api/projects/${id}`, { is_active: true });
     load();
+    onActiveProjectChanged?.();
   }
 
   async function remove(id) {

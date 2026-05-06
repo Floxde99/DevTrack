@@ -1,5 +1,18 @@
 const Database = require('better-sqlite3');
 
+const IDE_CONTEXT_TABLE_SQL = `
+  CREATE TABLE IF NOT EXISTS ide_context (
+    id            INTEGER PRIMARY KEY CHECK (id = 1),
+    repo_name      TEXT,
+    repo_path      TEXT,
+    git_branch     TEXT,
+    active_file    TEXT,
+    editor_name    TEXT,
+    editor_version TEXT,
+    updated_at     TEXT NOT NULL DEFAULT (datetime('now'))
+  );
+`;
+
 const SCHEMA_SQL = `
   PRAGMA journal_mode = WAL;
   PRAGMA foreign_keys = ON;
@@ -18,8 +31,19 @@ const SCHEMA_SQL = `
     ended_at     TEXT,
     app_name     TEXT NOT NULL,
     window_title TEXT,
+    pid          INTEGER,
+    exe_path     TEXT,
+    browser_domain TEXT,
+    browser_url    TEXT,
+    activity_level TEXT,
     category     TEXT NOT NULL,
-    project_id   INTEGER REFERENCES projects(id)
+    project_id   INTEGER REFERENCES projects(id),
+    repo_name     TEXT,
+    repo_path     TEXT,
+    git_branch    TEXT,
+    active_file   TEXT,
+    editor_name   TEXT,
+    editor_version TEXT
   );
 
   CREATE TABLE IF NOT EXISTS category_rules (
@@ -28,6 +52,8 @@ const SCHEMA_SQL = `
     category    TEXT NOT NULL,
     priority    INTEGER NOT NULL DEFAULT 0
   );
+
+  ${IDE_CONTEXT_TABLE_SQL}
 `;
 
 const DEFAULT_RULES = [
@@ -79,9 +105,49 @@ function seedDefaultRules(db) {
 function createDb(dbPath) {
   const db = new Database(dbPath);
   db.exec(SCHEMA_SQL);
+  migrateDb(db);
   seedDefaultRules(db);
   return db;
 }
 
 module.exports = { createDb, DEFAULT_RULES };
+
+function tableColumns(db, table) {
+  const rows = db.prepare(`PRAGMA table_info(${table})`).all();
+  return new Set(rows.map((r) => r.name));
+}
+
+function addColumnIfMissing(db, table, column, definitionSql) {
+  const cols = tableColumns(db, table);
+  if (cols.has(column)) return;
+  db.exec(`ALTER TABLE ${table} ADD COLUMN ${column} ${definitionSql}`);
+}
+
+function migrateDb(db) {
+  // Existing databases were created before IDE context existed.
+  addColumnIfMissing(db, 'activities', 'repo_name', 'TEXT');
+  addColumnIfMissing(db, 'activities', 'repo_path', 'TEXT');
+  addColumnIfMissing(db, 'activities', 'git_branch', 'TEXT');
+  addColumnIfMissing(db, 'activities', 'active_file', 'TEXT');
+  addColumnIfMissing(db, 'activities', 'editor_name', 'TEXT');
+  addColumnIfMissing(db, 'activities', 'editor_version', 'TEXT');
+  addColumnIfMissing(db, 'activities', 'browser_domain', 'TEXT');
+  addColumnIfMissing(db, 'activities', 'browser_url', 'TEXT');
+  addColumnIfMissing(db, 'activities', 'pid', 'INTEGER');
+  addColumnIfMissing(db, 'activities', 'exe_path', 'TEXT');
+  addColumnIfMissing(db, 'activities', 'activity_level', 'TEXT');
+
+  // Ensure ide_context schema exists (older DBs won't have it).
+  db.exec(IDE_CONTEXT_TABLE_SQL);
+  addColumnIfMissing(db, 'ide_context', 'repo_name', 'TEXT');
+  addColumnIfMissing(db, 'ide_context', 'repo_path', 'TEXT');
+  addColumnIfMissing(db, 'ide_context', 'git_branch', 'TEXT');
+  addColumnIfMissing(db, 'ide_context', 'active_file', 'TEXT');
+  addColumnIfMissing(db, 'ide_context', 'editor_name', 'TEXT');
+  addColumnIfMissing(db, 'ide_context', 'editor_version', 'TEXT');
+  addColumnIfMissing(db, 'ide_context', 'updated_at', "TEXT NOT NULL DEFAULT (datetime('now'))");
+
+  // Ensure singleton ide_context row exists (id = 1).
+  db.prepare(`INSERT OR IGNORE INTO ide_context (id) VALUES (1)`).run();
+}
 

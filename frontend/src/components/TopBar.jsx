@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { formatDuration } from '../theme.js';
 
-export default function TopBar({ current, wsConnected, date, onPrev, onNext, canNext }) {
+export default function TopBar({ current, activeProject, date, onPrev, onNext, canNext }) {
   const [elapsed, setElapsed] = useState(0);
 
   useEffect(() => {
@@ -17,13 +17,7 @@ export default function TopBar({ current, wsConnected, date, onPrev, onNext, can
   return (
     <div className="bg-surface border-b border-outline-variant px-6 py-3 flex items-center justify-between flex-shrink-0">
       <div className="flex items-center gap-3 bg-surface-container border border-outline-variant rounded px-4 py-2 min-w-0">
-        <span
-          className={[
-            'w-2 h-2 rounded-full flex-shrink-0',
-            wsConnected ? 'bg-live animate-pulse' : 'bg-outline-variant',
-          ].join(' ')}
-          title={wsConnected ? 'WebSocket connected' : 'WebSocket disconnected'}
-        />
+        <span className="w-2 h-2 rounded-full bg-live animate-pulse flex-shrink-0" />
         <span className="text-on-surface text-xs truncate">{current?.app_name ?? '—'}</span>
         <span className="text-on-surface-variant text-xs truncate">
           {current?.category ? `— ${current.category}` : '—'}
@@ -34,7 +28,16 @@ export default function TopBar({ current, wsConnected, date, onPrev, onNext, can
         </span>
       </div>
 
-      <div className="flex items-center gap-2 text-xs text-on-surface-variant">
+      <div className="flex items-center gap-3 text-xs text-on-surface-variant">
+        <div className="hidden sm:flex items-center gap-2 bg-surface-container-low border border-outline-variant rounded px-3 py-1.5 min-w-0">
+          <span
+            className="w-2 h-2 rounded-full flex-shrink-0"
+            style={{ background: activeProject?.color ?? '#9c8f79' }}
+          />
+          <span className="text-on-surface text-xs truncate">
+            {activeProject ? activeProject.name : 'No active project'}
+          </span>
+        </div>
         <button
           type="button"
           onClick={onPrev}

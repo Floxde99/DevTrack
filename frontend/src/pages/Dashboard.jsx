@@ -12,11 +12,10 @@ function todayStr() {
   return new Date().toISOString().slice(0, 10);
 }
 
-export default function Dashboard() {
+export default function Dashboard({ activeProject, onActiveProjectChanged }) {
   const [date, setDate] = useState(todayStr());
   const [stats, setStats] = useState(null);
   const [activities, setActivities] = useState([]);
-  const [wsConnected, setWsConnected] = useState(false);
 
   const loadData = useCallback(async (d) => {
     const [s, a] = await Promise.all([
@@ -31,12 +30,9 @@ export default function Dashboard() {
     loadData(date);
   }, [date, loadData]);
 
-  const connected = useDevTrackWs((msg) => {
+  useDevTrackWs((msg) => {
     if (msg.type === 'activity_changed') loadData(date);
-    if (msg.type === 'activity_start') loadData(date);
-    if (msg.type === 'activity_end') loadData(date);
   });
-  useEffect(() => setWsConnected(connected), [connected]);
 
   const isToday = date === todayStr();
   const prevDay = () =>
@@ -59,7 +55,7 @@ export default function Dashboard() {
     <div className="flex flex-col h-full">
       <TopBar
         current={stats?.current}
-        wsConnected={wsConnected}
+        activeProject={activeProject}
         date={date}
         onPrev={prevDay}
         onNext={nextDay}
@@ -97,7 +93,11 @@ export default function Dashboard() {
               <div className="text-[10px] text-on-surface-variant uppercase tracking-[0.18em] mb-4">
                 Projects
               </div>
-              <ProjectBreakdown />
+              <ProjectBreakdown
+                onActiveChanged={() => {
+                  onActiveProjectChanged?.();
+                }}
+              />
             </div>
           </div>
         </div>

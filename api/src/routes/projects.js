@@ -32,9 +32,8 @@ function createProjectsRouter(db) {
 
     const { name, color, is_active } = req.body ?? {};
 
-    if (is_active === true || is_active === 1) {
-      db.prepare('UPDATE projects SET is_active = 0').run();
-    }
+    const existing = db.prepare('SELECT id FROM projects WHERE id = ?').get(id);
+    if (!existing) return res.status(404).json({ error: 'not found' });
 
     const fields = [];
     const vals = [];
@@ -59,8 +58,14 @@ function createProjectsRouter(db) {
 
     if (fields.length === 0) return res.status(400).json({ error: 'nothing to update' });
 
-    vals.push(id);
-    db.prepare(`UPDATE projects SET ${fields.join(', ')} WHERE id = ?`).run(...vals);
+    const tx = db.transaction(() => {
+      if (is_active === true || is_active === 1) {
+        db.prepare('UPDATE projects SET is_active = 0').run();
+      }
+      vals.push(id);
+      db.prepare(`UPDATE projects SET ${fields.join(', ')} WHERE id = ?`).run(...vals);
+    });
+    tx();
 
     const row = db.prepare('SELECT * FROM projects WHERE id = ?').get(id);
     if (!row) return res.status(404).json({ error: 'not found' });

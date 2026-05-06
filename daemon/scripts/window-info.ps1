@@ -47,6 +47,9 @@ function Get-ForegroundWindowInfo {
     return @{
       app_name = 'unknown.exe'
       window_title = ''
+      pid = $null
+      exe_path = ''
+      process_name = ''
       idle_seconds = (Get-IdleSeconds)
     }
   }
@@ -59,12 +62,19 @@ function Get-ForegroundWindowInfo {
   $title = $sb.ToString()
 
   $app = 'unknown.exe'
+  $exePath = ''
+  $procName = ''
   try {
     $p = Get-Process -Id $procId -ErrorAction Stop
     if ($p.Path) {
       $app = [System.IO.Path]::GetFileName($p.Path)
+      $exePath = [string]$p.Path
     } elseif ($p.ProcessName) {
       $app = "$($p.ProcessName).exe"
+      $procName = [string]$p.ProcessName
+    }
+    if (-not $procName -and $p.ProcessName) {
+      $procName = [string]$p.ProcessName
     }
   } catch {
     $app = 'unknown.exe'
@@ -73,6 +83,9 @@ function Get-ForegroundWindowInfo {
   return @{
     app_name = $app
     window_title = $title
+    pid = [int]$procId
+    exe_path = $exePath
+    process_name = $procName
     idle_seconds = (Get-IdleSeconds)
   }
 }

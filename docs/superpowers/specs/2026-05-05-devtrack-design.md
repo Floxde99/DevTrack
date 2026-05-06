@@ -39,6 +39,7 @@ DevTrack est une application de suivi du temps en temps réel pour développeurs
 Tourne en arrière-plan, ne nécessite pas Docker.
 
 **Responsabilités :**
+
 - Interroge `GetForegroundWindow` + `GetWindowText` via `ffi-napi` (ou `node-ffi-napi`) toutes les **2 secondes**
 - Détecte l'inactivité via `GetLastInputInfo` — seuil configurable (défaut : 120 s)
 - Applique les règles de catégorisation (matching sur `app_name`)
@@ -48,6 +49,7 @@ Tourne en arrière-plan, ne nécessite pas Docker.
 - Démarre automatiquement avec Windows (Task Scheduler ou `pm2`)
 
 **Fichiers clés :**
+
 ```
 daemon/
   src/
@@ -63,6 +65,7 @@ daemon/
 #### 2. API Server (`/api`) — Docker · Express.js
 
 **Responsabilités :**
+
 - Reçoit les événements du daemon (`POST /api/events`)
 - Stocke dans SQLite (volume monté)
 - Expose les endpoints REST pour le dashboard
@@ -70,6 +73,7 @@ daemon/
 - CRUD projets
 
 **Endpoints REST :**
+
 ```
 POST   /api/events              # reçoit un événement du daemon
 GET    /api/activities?date=    # historique par jour
@@ -84,12 +88,14 @@ PUT    /api/rules               # remplacer toutes les règles
 ```
 
 **WebSocket :**
+
 - Connexion : `ws://localhost:3001/ws`
 - Événements émis : `activity_changed`, `stats_updated`
 
 #### 3. Dashboard (`/frontend`) — Docker · React + Vite
 
 **Responsabilités :**
+
 - Affichage temps réel via WebSocket
 - Visualisation historique via REST
 - Gestion des projets
@@ -130,15 +136,17 @@ CREATE TABLE category_rules (
 
 ## Catégories
 
-| Catégorie | Couleur | Apps par défaut |
-|---|---|---|
-| 💻 Coding | `#f59e0b` | `cursor.exe`, `code.exe`, `devenv.exe`, `webstorm64.exe`, `idea64.exe`, `vim.exe`, `nvim.exe` |
-| 🌐 Web | `#fb923c` | `chrome.exe`, `firefox.exe`, `msedge.exe`, `brave.exe`, `opera.exe` |
-| 💬 Communication | `#c084fc` | `discord.exe`, `slack.exe`, `outlook.exe`, `thunderbird.exe`, `teams.exe`, `msteams.exe` |
-| 🖥️ Terminal | `#fbbf24` | `WindowsTerminal.exe`, `powershell.exe`, `cmd.exe`, `wt.exe`, `alacritty.exe` |
-| 🎨 Design | `#34d399` | `figma.exe`, `photoshop.exe`, `illustrator.exe`, `xd.exe` |
-| 😴 Idle | `#ef4444` | *(inactivité > seuil)* |
-| 📦 Autre | `#57534e` | *(fallback)* |
+
+| Catégorie        | Couleur   | Apps par défaut                                                                               |
+| ---------------- | --------- | --------------------------------------------------------------------------------------------- |
+| 💻 Coding        | `#f59e0b` | `cursor.exe`, `code.exe`, `devenv.exe`, `webstorm64.exe`, `idea64.exe`, `vim.exe`, `nvim.exe` |
+| 🌐 Web           | `#fb923c` | `chrome.exe`, `firefox.exe`, `msedge.exe`, `brave.exe`, `opera.exe`                           |
+| 💬 Communication | `#c084fc` | `discord.exe`, `slack.exe`, `outlook.exe`, `thunderbird.exe`, `teams.exe`, `msteams.exe`      |
+| 🖥️ Terminal     | `#fbbf24` | `WindowsTerminal.exe`, `powershell.exe`, `cmd.exe`, `wt.exe`, `alacritty.exe`                 |
+| 🎨 Design        | `#34d399` | `figma.exe`, `photoshop.exe`, `illustrator.exe`, `xd.exe`                                     |
+| 😴 Idle          | `#ef4444` | *(inactivité > seuil)*                                                                        |
+| 📦 Autre         | `#57534e` | *(fallback)*                                                                                  |
+
 
 Les règles sont éditables depuis le dashboard (priorité, ajout/suppression d'apps).
 
@@ -148,17 +156,19 @@ Les règles sont éditables depuis le dashboard (priorité, ajout/suppression d'
 
 ### Charte graphique — Dark Amber
 
-| Token | Valeur |
-|---|---|
-| `bg-base` | `#0c0a00` |
-| `bg-surface` | `#0f0d00` |
-| `bg-elevated` | `#1c1800` |
-| `border` | `#292400` |
-| `text-primary` | `#e2c97e` |
-| `text-muted` | `#78716c` |
-| `accent` | `#f59e0b` |
+
+| Token           | Valeur    |
+| --------------- | --------- |
+| `bg-base`       | `#0c0a00` |
+| `bg-surface`    | `#0f0d00` |
+| `bg-elevated`   | `#1c1800` |
+| `border`        | `#292400` |
+| `text-primary`  | `#e2c97e` |
+| `text-muted`    | `#78716c` |
+| `accent`        | `#f59e0b` |
 | `accent-bright` | `#fcd34d` |
-| `live-green` | `#4ade80` |
+| `live-green`    | `#4ade80` |
+
 
 ### Layout — Sidebar fixe
 
@@ -210,23 +220,27 @@ Le daemon lit/écrit dans `./data/devtrack.db` (chemin Windows absolu, ex: `C:\U
 
 ## Gestion des erreurs
 
-| Scénario | Comportement |
-|---|---|
-| API inaccessible | Daemon continue d'écrire dans SQLite, retry POST toutes les 30 s |
-| Docker down | Dashboard inaccessible, daemon continue de logger localement |
-| Fenêtre sans titre | `window_title = ""` accepté, `app_name` suffisant pour catégoriser |
-| App inconnue | Catégorie `autre`, loguée pour révision dans Config |
-| SQLite corrompu | Daemon crée un nouveau fichier `devtrack-YYYYMMDD.db`, alerte dans les logs |
+
+| Scénario           | Comportement                                                                |
+| ------------------ | --------------------------------------------------------------------------- |
+| API inaccessible   | Daemon continue d'écrire dans SQLite, retry POST toutes les 30 s            |
+| Docker down        | Dashboard inaccessible, daemon continue de logger localement                |
+| Fenêtre sans titre | `window_title = ""` accepté, `app_name` suffisant pour catégoriser          |
+| App inconnue       | Catégorie `autre`, loguée pour révision dans Config                         |
+| SQLite corrompu    | Daemon crée un nouveau fichier `devtrack-YYYYMMDD.db`, alerte dans les logs |
+
 
 ---
 
 ## Prérequis
 
-| Composant | Prérequis |
-|---|---|
-| Daemon | Node.js ≥ 18, `node-gyp` + Build Tools Windows (pour compiler `ffi-napi`) |
-| Docker stack | Docker Desktop for Windows avec WSL2 |
-| Daemon autostart | `pm2` (optionnel) ou Task Scheduler Windows |
+
+| Composant        | Prérequis                                                                 |
+| ---------------- | ------------------------------------------------------------------------- |
+| Daemon           | Node.js ≥ 18, `node-gyp` + Build Tools Windows (pour compiler `ffi-napi`) |
+| Docker stack     | Docker Desktop for Windows avec WSL2                                      |
+| Daemon autostart | `pm2` (optionnel) ou Task Scheduler Windows                               |
+
 
 Le daemon nécessite les **Visual C++ Build Tools** (`npm install --global windows-build-tools` ou via Visual Studio Installer) pour compiler les bindings natifs Win32.
 
@@ -250,3 +264,4 @@ Le daemon nécessite les **Visual C++ Build Tools** (`npm install --global windo
 - Rapports exportables (CSV, PDF)
 - Authentification
 - Support macOS / Linux
+

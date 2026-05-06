@@ -22,7 +22,7 @@ Windows time tracking for dev work: a **Windows daemon** collects activity, writ
 From repo root:
 
 ```powershell
-docker compose up --build
+.\scripts\stack-start.ps1 -Build
 ```
 
 - Frontend: `http://localhost:3000`
@@ -49,6 +49,10 @@ Optional helper script (starts docker compose):
 ```powershell
 .\scripts\dev.ps1
 ```
+
+## Runbooks
+
+- `docs/runbooks/stack-and-autostart.md` (Docker healthchecks, start/stop scripts, Windows autostart)
 
 The daemon uses `daemon/config.json`:
 
@@ -92,4 +96,45 @@ If `docker compose up` fails, start Docker Desktop first and retry.
 2. Confirm API: open `http://localhost:3001/health` → `{ "ok": true }`
 3. Start daemon: `cd daemon; npm install; npm start`
 4. Open `http://localhost:3000` and confirm the dashboard loads (and stats endpoints respond)
+
+## PR-C: Browser URL/domain capture (opt-in)
+
+DevTrack can optionally enrich browser activities (Chrome/Edge/Firefox/Brave/Opera) with a **web domain** (default) and **full URL** (optional) by running a small MV3 browser extension that posts the active tab context to a **local daemon endpoint**.
+
+### Privacy defaults
+
+- **Default**: store **domain only** (e.g. `example.com`)
+- **Optional**: store **full URL** (e.g. `https://example.com/path?q=1`) by setting `daemon/config.json` → `browser_capture_full_url: true`
+
+### Daemon setup
+
+In `daemon/config.json`:
+
+- `browser_context_port`: local port to listen on (default `7337`)
+- `browser_capture_full_url`: `false` by default
+
+When the daemon is running, it listens on:
+
+- `http://127.0.0.1:7337/browser/context`
+
+### Load the extension (Chrome / Edge)
+
+1. Open `chrome://extensions` (or `edge://extensions`)
+2. Enable **Developer mode**
+3. Click **Load unpacked**
+4. Select the folder `browser-extension/` from this repo
+
+The extension requests:
+
+- `tabs` permission (needed to read `tab.url` and `tab.title` from `chrome.tabs.query`)
+- `host_permissions` for `http://127.0.0.1/*` and `http://localhost/*` (to POST to the local daemon endpoint)
+
+### Extension configuration (optional)
+
+Right now the extension uses defaults inside `browser-extension/background.js`:
+
+- `daemonPort: 7337`
+- `captureFullUrl: false`
+
+If you need to change these, edit `DEFAULTS` in `browser-extension/background.js` and reload the extension.
 

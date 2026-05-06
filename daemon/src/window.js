@@ -1,5 +1,5 @@
 function safeUnknownWindow() {
-  return { app_name: 'unknown.exe', window_title: '' };
+  return { app_name: 'unknown.exe', window_title: '', pid: null, exe_path: '' };
 }
 
 const path = require('node:path');
@@ -38,7 +38,7 @@ function tryRunPowerShell(exeName) {
 
 function probeWindowInfo() {
   if (process.platform !== 'win32') {
-    return { app_name: 'unknown.exe', window_title: '', idle_seconds: 0 };
+    return { app_name: 'unknown.exe', window_title: '', pid: null, exe_path: '', idle_seconds: 0 };
   }
 
   const now = Date.now();
@@ -48,6 +48,8 @@ function probeWindowInfo() {
   const normalized = {
     app_name: typeof parsed?.app_name === 'string' && parsed.app_name.length > 0 ? parsed.app_name : 'unknown.exe',
     window_title: typeof parsed?.window_title === 'string' ? parsed.window_title : '',
+    pid: typeof parsed?.pid === 'number' && Number.isFinite(parsed.pid) && parsed.pid > 0 ? parsed.pid : null,
+    exe_path: typeof parsed?.exe_path === 'string' ? parsed.exe_path : '',
     idle_seconds: typeof parsed?.idle_seconds === 'number' && Number.isFinite(parsed.idle_seconds) ? parsed.idle_seconds : 0,
   };
 
@@ -61,6 +63,8 @@ function getActiveWindow() {
   return {
     app_name: info.app_name || 'unknown.exe',
     window_title: info.window_title || '',
+    pid: info.pid ?? null,
+    exe_path: info.exe_path || '',
   };
 }
 
