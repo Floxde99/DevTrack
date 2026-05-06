@@ -3,5 +3,14 @@
   "write_interval_ms": 5000,
   "idle_threshold_s": 120,
   "db_path": "../../data/devtrack.db",
-  "api_url": "http://localhost:3001"
+  "api_url": "http://localhost:3001",
+
+  "browser_context_port": 7337,
+  "browser_capture_full_url": false,
+
+  "privacy": {
+    "mode": "off",
+    "allow": { "app_name": [], "exe_path": [] },
+    "deny": { "app_name": [], "exe_path": [] }
+  }
 }

@@ -14,14 +14,32 @@ function globMatch(pattern, str) {
   return globToRegex(pattern).test(str);
 }
 
-function categorize(appName, rules) {
+function isMeetingLike(appName, windowTitle) {
+  if (typeof appName !== 'string') return false;
+  const app = appName.toLowerCase();
+  const isCommsApp = app === 'teams.exe' || app === 'msteams.exe' || app === 'zoom.exe' || app === 'discord.exe';
+  if (!isCommsApp) return false;
+
+  const title = typeof windowTitle === 'string' ? windowTitle.toLowerCase() : '';
+  if (!title) return false;
+
+  return /(\bcall\b|\bmeeting\b|\bhuddle\b|\bstandup\b|\bwebinar\b|\bjoin\b|\bvoice\b|\bvideo\b)/i.test(title);
+}
+
+function categorize(appName, rules, ctx) {
   const safeRules = Array.isArray(rules) ? rules : [];
   const sorted = [...safeRules].sort((a, b) => (b.priority ?? 0) - (a.priority ?? 0));
 
   for (const rule of sorted) {
     if (!rule || typeof rule.app_pattern !== 'string') continue;
-    if (globMatch(rule.app_pattern, appName)) return rule.category ?? 'other';
+    if (globMatch(rule.app_pattern, appName)) {
+      const base = rule.category ?? 'other';
+      if (base !== 'idle' && isMeetingLike(appName, ctx?.window_title)) return 'meeting';
+      return base;
+    }
   }
+
+  if (isMeetingLike(appName, ctx?.window_title)) return 'meeting';
   return 'other';
 }
 
@@ -34,5 +52,5 @@ function loadRules(rawRules) {
   }));
 }
 
-module.exports = { categorize, loadRules };
+module.exports = { categorize, loadRules, isMeetingLike };
 

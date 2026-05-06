@@ -43,11 +43,15 @@ test('health + stats + activities endpoints return JSON shapes', async () => {
     const statsToday = await (await fetch(`${base}/api/stats/today`)).json();
     assert.ok(typeof statsToday.date === 'string');
     assert.ok(Array.isArray(statsToday.by_category));
+    assert.ok(Array.isArray(statsToday.by_project));
     assert.ok(statsToday.current === null || typeof statsToday.current === 'object');
 
     const today = new Date().toISOString().slice(0, 10);
     const activities = await (await fetch(`${base}/api/activities?date=${today}`)).json();
     assert.ok(Array.isArray(activities));
+
+    const weekProjects = await (await fetch(`${base}/api/stats/week/projects`)).json();
+    assert.ok(Array.isArray(weekProjects));
   } finally {
     server.close();
     db.close();
@@ -80,6 +84,39 @@ test('projects CRUD smoke', async () => {
       })
     ).json();
     assert.equal(patched.is_active, 1);
+
+    const created2 = await (
+      await fetch(`${base}/api/projects`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: 'Test2', color: '#abcdef' }),
+      })
+    ).json();
+    assert.ok(created2.id);
+
+    const patched2 = await (
+      await fetch(`${base}/api/projects/${created2.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ is_active: true }),
+      })
+    ).json();
+    assert.equal(patched2.is_active, 1);
+
+    const listAfterSwitch = await (await fetch(`${base}/api/projects`)).json();
+    assert.equal(listAfterSwitch.find((p) => p.id === created2.id)?.is_active, 1);
+    assert.equal(listAfterSwitch.find((p) => p.id === created.id)?.is_active, 0);
+
+    const bad = await fetch(`${base}/api/projects/999999`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ is_active: true }),
+    });
+    assert.equal(bad.status, 404);
+
+    const list2 = await (await fetch(`${base}/api/projects`)).json();
+    const stillActive = list2.find((p) => p.id === created2.id);
+    assert.equal(stillActive.is_active, 1);
 
     const del = await fetch(`${base}/api/projects/${created.id}`, { method: 'DELETE' });
     assert.equal(del.status, 204);

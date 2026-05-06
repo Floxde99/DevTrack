@@ -26,6 +26,10 @@ test('categorize: unknown app -> other', () => {
   assert.equal(categorize('notepad.exe', DEFAULT_RULES), 'other');
 });
 
+test('categorize: Teams meeting window -> meeting', () => {
+  assert.equal(categorize('teams.exe', DEFAULT_RULES, { window_title: 'Daily Standup Call' }), 'meeting');
+});
+
 test('loadRules: returns an array', () => {
   const rules = loadRules([]);
   assert.ok(Array.isArray(rules));

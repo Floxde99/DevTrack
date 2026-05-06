@@ -36,14 +36,18 @@ test('window-info script returns parseable JSON', { skip: shouldSkip }, () => {
   assert.ok(parsed.app_name.length > 0);
   assert.equal(typeof parsed.window_title, 'string');
   assert.equal(typeof parsed.idle_seconds, 'number');
+  assert.ok(parsed.pid === null || typeof parsed.pid === 'number');
+  assert.equal(typeof parsed.exe_path, 'string');
 });
 
-test('getActiveWindow returns object with app_name and window_title', { skip: shouldSkip }, () => {
+test('getActiveWindow returns object with app_name/window_title/pid/exe_path', { skip: shouldSkip }, () => {
   const result = getActiveWindow();
   assert.ok(result && typeof result === 'object', 'result is an object');
   assert.equal(typeof result.app_name, 'string', 'app_name is string');
   assert.equal(typeof result.window_title, 'string', 'window_title is string');
   assert.ok(result.app_name.length > 0, 'app_name is non-empty');
+  assert.ok(result.pid === null || typeof result.pid === 'number', 'pid is number or null');
+  assert.equal(typeof result.exe_path, 'string', 'exe_path is string');
 });
 
 test('getIdleSeconds returns number >= 0', { skip: shouldSkip }, () => {

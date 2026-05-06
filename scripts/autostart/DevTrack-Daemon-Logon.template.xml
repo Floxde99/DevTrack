@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-16"?>
+<Task version="1.4" xmlns="http://schemas.microsoft.com/windows/2004/02/mit/task">
+  <RegistrationInfo>
+    <Description>DevTrack daemon autostart (logon).</Description>
+  </RegistrationInfo>
+  <Triggers>
+    <LogonTrigger>
+      <Enabled>true</Enabled>
+    </LogonTrigger>
+  </Triggers>
+  <Principals>
+    <Principal id="Author">
+      <!-- Replace __USER_ID__ with DOMAIN\Username if importing manually -->
+      <UserId>__USER_ID__</UserId>
+      <LogonType>InteractiveToken</LogonType>
+      <RunLevel>LeastPrivilege</RunLevel>
+    </Principal>
+  </Principals>
+  <Settings>
+    <MultipleInstancesPolicy>IgnoreNew</MultipleInstancesPolicy>
+    <DisallowStartIfOnBatteries>false</DisallowStartIfOnBatteries>
+    <StopIfGoingOnBatteries>false</StopIfGoingOnBatteries>
+    <StartWhenAvailable>true</StartWhenAvailable>
+    <Enabled>true</Enabled>
+  </Settings>
+  <Actions Context="Author">
+    <Exec>
+      <Command>powershell.exe</Command>
+      <!-- Replace __REPO_ROOT__ with the full repo path if importing manually -->
+      <Arguments>-NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -File "__REPO_ROOT__\scripts\autostart\run-daemon.ps1"</Arguments>
+      <WorkingDirectory>__REPO_ROOT__</WorkingDirectory>
+    </Exec>
+  </Actions>
+</Task>
+

@@ -1,0 +1,53 @@
+{
+  "name": "devtrack-ide-context",
+  "displayName": "DevTrack IDE Context",
+  "description": "Sends minimal IDE context to the local DevTrack daemon.",
+  "version": "0.0.1",
+  "publisher": "local",
+  "engines": {
+    "vscode": "^1.90.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "*"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "configuration": {
+      "title": "DevTrack IDE Context",
+      "properties": {
+        "devtrackIdeContext.daemonPort": {
+          "type": "number",
+          "default": 3001,
+          "minimum": 1,
+          "maximum": 65535,
+          "description": "Local daemon port to POST IDE context to (127.0.0.1:PORT)."
+        },
+        "devtrackIdeContext.includeRepoPath": {
+          "type": "boolean",
+          "default": false,
+          "description": "Include absolute repo path in context payload."
+        },
+        "devtrackIdeContext.includeActiveFilePath": {
+          "type": "boolean",
+          "default": false,
+          "description": "Include active file relative path in context payload."
+        }
+      }
+    }
+  },
+  "scripts": {
+    "compile": "tsc -p .",
+    "watch": "tsc -w -p .",
+    "package": "vsce package --no-dependencies"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "@types/vscode": "^1.90.0",
+    "typescript": "^5.5.0",
+    "vsce": "^2.26.0"
+  }
+}
+
