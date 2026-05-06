@@ -16,6 +16,7 @@ export default function Dashboard() {
   const [date, setDate] = useState(todayStr());
   const [stats, setStats] = useState(null);
   const [activities, setActivities] = useState([]);
+  const [wsConnected, setWsConnected] = useState(false);
 
   const loadData = useCallback(async (d) => {
     const [s, a] = await Promise.all([
@@ -30,9 +31,12 @@ export default function Dashboard() {
     loadData(date);
   }, [date, loadData]);
 
-  useDevTrackWs((msg) => {
+  const connected = useDevTrackWs((msg) => {
     if (msg.type === 'activity_changed') loadData(date);
+    if (msg.type === 'activity_start') loadData(date);
+    if (msg.type === 'activity_end') loadData(date);
   });
+  useEffect(() => setWsConnected(connected), [connected]);
 
   const isToday = date === todayStr();
   const prevDay = () =>
@@ -55,6 +59,7 @@ export default function Dashboard() {
     <div className="flex flex-col h-full">
       <TopBar
         current={stats?.current}
+        wsConnected={wsConnected}
         date={date}
         onPrev={prevDay}
         onNext={nextDay}

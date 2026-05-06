@@ -14,6 +14,7 @@ const client = new ApiClient(config.api_url);
 
 let currentActivityId = null;
 let currentKey = null;
+let currentStartedAt = null;
 
 function getRules() {
   return loadRules(db.getRules());
@@ -21,29 +22,39 @@ function getRules() {
 
 function closeCurrentActivity() {
   if (currentActivityId === null) return;
-  const now = new Date().toISOString();
-  db.closeActivity(currentActivityId, now);
+  const ended_at = new Date().toISOString();
+  db.closeActivity(currentActivityId, ended_at);
+
+  // Best-effort close on API side as well (may be offline).
+  client.postEvent({
+    type: 'activity_end',
+    started_at: currentStartedAt,
+    ended_at,
+  });
+
   currentActivityId = null;
   currentKey = null;
+  currentStartedAt = null;
 }
 
 function startActivity(appName, title, category) {
-  const now = new Date().toISOString();
+  const started_at = new Date().toISOString();
   currentActivityId = db.upsertActivity({
-    started_at: now,
+    started_at,
     app_name: appName,
     window_title: title,
     category,
     project_id: null,
   });
   currentKey = `${appName}|${category}`;
+  currentStartedAt = started_at;
 
   client.postEvent({
     type: 'activity_start',
     app_name: appName,
     window_title: title,
     category,
-    started_at: now,
+    started_at,
   });
 }
 
